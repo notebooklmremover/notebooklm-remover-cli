@@ -1,8 +1,19 @@
 # notebooklm-remover
 
-Remove NotebookLM watermarks from images via CLI or Node.js API. 100% local processing — your files never leave your machine.
+<p align="center">
+  <a href="https://notebooklmremover.org">
+    <img src="images/banner.png" alt="notebooklm-remover CLI" width="800">
+  </a>
+</p>
 
-> **For video, PDF, PPTX, Gemini image, and audio processing, use the full online tool: [notebooklmremover.org](https://notebooklmremover.org)**
+<p align="center">
+  <a href="https://www.npmjs.com/package/notebooklm-remover"><img src="https://img.shields.io/npm/v/notebooklm-remover" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/notebooklm-remover"><img src="https://img.shields.io/npm/l/notebooklm-remover" alt="license"></a>
+</p>
+
+Remove NotebookLM watermarks from slide screenshots and infographic images — directly from your terminal. Uses connected component analysis with adaptive thresholding to detect and cleanly fill the watermark region.
+
+Part of the [NotebookLM Remover](https://notebooklmremover.org) toolset.
 
 ## Install
 
@@ -10,49 +21,58 @@ Remove NotebookLM watermarks from images via CLI or Node.js API. 100% local proc
 npm install -g notebooklm-remover
 ```
 
-## CLI Usage
+## Usage
 
 ```bash
 # Single image
 notebooklm-remover slide.png cleaned.png
 
-# Batch process a folder
+# Batch process all images in a folder
 notebooklm-remover ./slides/ ./output/
 
-# Custom threshold
+# Adjust detection sensitivity (lower = more aggressive)
 notebooklm-remover slide.png cleaned.png --threshold 45
 ```
 
-## API Usage
+## Node.js API
 
 ```javascript
 const { removeWatermark } = require('notebooklm-remover');
 
 await removeWatermark('input.png', 'output.png', {
-  threshold: 60,  // Detection sensitivity (default: 60)
-  scanW: 0.22,    // Scan width ratio (default: 22% from right)
-  scanH: 0.08,    // Scan height ratio (default: 8% from bottom)
+  threshold: 60,
+  scanW: 0.22,
+  scanH: 0.08,
 });
 ```
 
 ## How It Works
 
-1. Scans the bottom-right corner of the image (where NotebookLM places its logo)
-2. Detects dark pixels against the background using median-based thresholding
-3. Replaces detected watermark pixels with sampled background from above the region
-4. Multi-pass detection with adaptive thresholds for various backgrounds
+1. Scans the bottom-right region of the image where NotebookLM places its logo
+2. Calculates the background median brightness in the scan area
+3. Detects watermark pixels using adaptive multi-pass thresholding (60 → 45 → 30)
+4. Fills detected pixels by sampling from above the watermark region
 
-## Supported Formats
+Works on light and dark backgrounds. Handles both the NotebookLM text logo and icon variations.
 
-| Format | CLI | Online Tool |
-|--------|-----|-------------|
-| PNG/JPG/WebP images | ✅ | ✅ |
-| Video (MP4) | ❌ | [✅ notebooklmremover.org/video](https://notebooklmremover.org/video) |
-| PDF slides | ❌ | [✅ notebooklmremover.org/slides](https://notebooklmremover.org/slides) |
-| PPTX | ❌ | [✅ notebooklmremover.org/pptx](https://notebooklmremover.org/pptx) |
-| Gemini images | ❌ | [✅ notebooklmremover.org/gemini-image](https://notebooklmremover.org/gemini-image) |
-| Audio trimming | ❌ | [✅ notebooklmremover.org/audio](https://notebooklmremover.org/audio) |
-| Metadata removal | ❌ | [✅ notebooklmremover.org/metadata](https://notebooklmremover.org/metadata) |
+## Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--threshold <n>` | Detection sensitivity | `60` |
+| `--scan-w <pct>` | Scan width ratio from right edge | `0.22` |
+| `--scan-h <pct>` | Scan height ratio from bottom edge | `0.08` |
+
+## Full Toolset
+
+This CLI handles image watermark removal. For other NotebookLM formats, the [online tool](https://notebooklmremover.org) covers everything — video, PDF, PPTX, Gemini images, audio trimming, and metadata cleanup. All processing happens in your browser, nothing gets uploaded.
+
+- [Video watermark removal](https://notebooklmremover.org/video)
+- [PDF slide watermark removal](https://notebooklmremover.org/slides)
+- [PPTX watermark removal](https://notebooklmremover.org/pptx)
+- [Gemini image watermark removal](https://notebooklmremover.org/gemini-image) (lossless alpha reversal)
+- [Audio intro/outro trimming](https://notebooklmremover.org/audio)
+- [AI metadata removal](https://notebooklmremover.org/metadata)
 
 ## License
 
